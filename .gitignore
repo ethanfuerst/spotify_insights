@@ -3,6 +3,8 @@
 
 # Icon
 Icon\r
+Icon[
+]
 
 # VS Code Settings
 .vscode
