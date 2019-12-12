@@ -1,0 +1,14 @@
+# Folder view configuration files
+.DS_Store
+
+# Icon
+Icon
+
+# VS Code Settings
+.vscode
+
+# Compiled Python files
+*.pyc
+
+# My Spotify Data
+MyData
