@@ -12,14 +12,16 @@ from tzlocal import get_localzone
 '''
 Streams
 '''
+# List of files containing streaming history
 streaming_hist = glob.glob('MyData/StreamingHistory*.json')
 
+# Make a df called streams with all the streaming history
 streams = pd.DataFrame()
 for i in streaming_hist:
     i_df = pd.read_json(i)
     streams = pd.concat([i_df, streams])
 
-# Sort the dataframe by endTime
+# Sort the df by endTime
 streams.sort_values('endTime', inplace=True)
 streams.reset_index(drop=True, inplace=True)
 
@@ -34,6 +36,9 @@ streams['endTime'] = streams['endTime'].dt.tz_localize(None)
 streams['playTime'] = pd.TimedeltaIndex(streams['msPlayed'], unit='ms')
 # Get startTime from endTime - playTime
 streams['startTime'] = streams['endTime'] - streams['playTime']
+
+# Reorder columns to look nicer
+streams = streams[['artistName', 'trackName', 'msPlayed', 'playTime', 'startTime', 'endTime']]
 
 #%%
 '''
