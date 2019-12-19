@@ -5,6 +5,8 @@ import os
 import glob
 import json
 import datetime
+import time
+from tzlocal import get_localzone
 
 #%%
 '''
@@ -17,11 +19,23 @@ for i in streaming_hist:
     i_df = pd.read_json(i)
     streams = pd.concat([i_df, streams])
 
-streams["endTime"] = pd.to_datetime(streams["endTime"])
+# Sort the dataframe by endTime
 streams.sort_values('endTime', inplace=True)
 streams.reset_index(drop=True, inplace=True)
 
+# Get local timezone of where script is run
+local_tz = str(get_localzone())
+# Convert endTime to local timezone
+streams['endTime'] = pd.to_datetime(streams["endTime"]).dt.tz_localize('Europe/Stockholm').dt.tz_convert(local_tz)
+# Drop timezone 
+streams['endTime'] = streams['endTime'].dt.tz_localize(None)
 
+# Convert msPlayed to a Timedelta series called playTime
+streams['playTime'] = pd.TimedeltaIndex(streams['msPlayed'], unit='ms')
+# Get startTime from endTime - playTime
+streams['startTime'] = streams['endTime'] - streams['playTime']
+
+#%%
 '''
 Library
     Tracks
@@ -40,7 +54,7 @@ with open('MyData/YourLibrary.json') as data:
         else:
             pass
 
-
+#%%
 '''
 Playlists
 '''
@@ -52,12 +66,12 @@ Playlists
 #     playlists = pd.concat([i_df, playlists])
 
 # caps out at 67792 lines or 1799045 characters
-with open('MyData/Playlist1.json') as data:
-    playlists = json.loads(data.read())
+# with open('MyData/Playlist1.json') as data:
+#     playlists = json.loads(data.read())
 
-df = pd.read_json('MyData/Playlist1.json')
-for i in df['playlists']:
-    print(i['name'])
+# df = pd.read_json('MyData/Playlist1.json')
+# for i in df['playlists']:
+#     print(i['name'])
 #%%
 # Put the data in .csvs
 
