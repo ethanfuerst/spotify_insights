@@ -16,4 +16,4 @@ My mission for this project is to visualize my Spotify data in multiple ways. I'
 
 - [ ] learn more about Plotly and Dash
 
-- [ ] figure out how to clean all the data and what format I will use the dataframes for
+- [ ] create visualization ideas in Tableau

@@ -44,6 +44,9 @@ for i in streaming_hist:
 streams.sort_values('endTime', inplace=True)
 streams.reset_index(drop=True, inplace=True)
 
+# Removing all rows where 0 msPlayed is recorded
+streams = streams[streams['msPlayed'] != 0].copy()
+
 # Get local timezone of where script is run
 local_tz = str(get_localzone())
 # Convert endTime to local timezone
@@ -56,26 +59,50 @@ streams['playTime'] = pd.TimedeltaIndex(streams['msPlayed'], unit='ms')
 # Get startTime from endTime - playTime
 streams['startTime'] = streams['endTime'] - streams['playTime']
 
-# Reorder columns to look nicer
-streams = streams[['artistName', 'trackName', 'msPlayed', 'playTime', 'startTime', 'endTime']]
-
 # Create inLibrary column - is true if tracks are saved in library and false if not saved in library
 streams['inLibrary'] = (streams['artistName'].isin(tracks['artist']) & streams['trackName'].isin(tracks['track'])).astype(bool)
 
 # Create an audioType column
 streams['audioType'] = np.where(streams['artistName'].isin(subscriptions['name']), 'Podcast', "Music")
 
+# Create a date column that I can group by
+streams['date'] = streams['startTime'].dt.date
+
+# Reorder columns to look nicer
+streams = streams[['date', 'artistName', 'trackName', 'msPlayed', 'playTime', 'startTime', 'endTime', 'inLibrary', 'audioType']]
+
+#%%
 # Create a groupby dataframe used for totals
-streams_sum = streams.groupby(['artistName','trackName', 'msPlayed']).sum().copy()
-# streams_sum.drop(['inLibrary'], inplace=True)
+streams_tracks = streams.groupby(['artistName','trackName']).sum().copy()
+streams_tracks = pd.DataFrame(streams_tracks.to_records())
+streams_tracks['inLibrary'] = streams_tracks['inLibrary'].astype(bool)
 
+
+# This dataframe shows the sum of listening for each day
+streams_days = streams.groupby(['date', 'audioType']).sum().copy()
+streams_days.drop('inLibrary', axis=1, inplace=True)
+streams_days = streams_days.unstack(level=1)
+streams_days = streams_days.fillna(0).astype(int)
+streams_days.columns = streams_days.columns.get_level_values(1)
+streams_days = pd.DataFrame(streams_days.to_records())
+
+# This dataframe shows the total amount of time per track each day
+streams_tracks_days = streams.groupby(['date', 'artistName', 'trackName']).sum().copy()
+streams_tracks_days.sort_values(['date', 'artistName', 'msPlayed'], inplace=True)
+streams_tracks_days = pd.DataFrame(streams_tracks_days.to_records())
+streams_tracks_days.drop('inLibrary', axis=1, inplace=True)
+
+# This dataframe shows the total amount of time per artist each day
+streams_artists_days = streams_tracks_days.groupby(['date', 'artistName']).sum().copy()
+streams_artists_days.sort_values(['date', 'msPlayed'], inplace=True)
+streams_artists_days = pd.DataFrame(streams_artists_days.to_records())
+
+# Export to .csvs to work in Tableau
 streams.to_csv('streams.csv', index=False)
-streams_sum.to_csv('streams_sum.csv')
-
-# Get rid of inLibrary column
-streams_sum = pd.read_csv('streams_sum.csv')
-streams_sum.drop('inLibrary', axis = 1, inplace=True)
-streams_sum = pd.read_csv('streams_sum.csv')
+streams_tracks.to_csv('streams_tracks.csv')
+streams_days.to_csv('streams_days.csv')
+streams_tracks_days.to_csv('streams_tracks_days.csv')
+streams_artists_days.to_csv('streams_artists_days.csv')
 
 #%%
 '''
