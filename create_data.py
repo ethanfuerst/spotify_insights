@@ -10,6 +10,25 @@ from tzlocal import get_localzone
 
 #%%
 '''
+Library
+    Tracks
+    Albums
+    Subscriptions
+'''
+with open('MyData/YourLibrary.json') as data:
+    library = json.loads(data.read())
+    for i in library:
+        if i == 'tracks':
+            tracks = pd.DataFrame(library['tracks'])
+        elif i == 'albums':
+            albums = pd.DataFrame(library['albums'])
+        elif i == 'shows':
+            subscriptions = pd.DataFrame(library['shows'])
+        else:
+            pass
+
+#%%
+'''
 Streams
 '''
 # List of files containing streaming history
@@ -40,24 +59,23 @@ streams['startTime'] = streams['endTime'] - streams['playTime']
 # Reorder columns to look nicer
 streams = streams[['artistName', 'trackName', 'msPlayed', 'playTime', 'startTime', 'endTime']]
 
-#%%
-'''
-Library
-    Tracks
-    Albums
-    Subscriptions
-'''
-with open('MyData/YourLibrary.json') as data:
-    library = json.loads(data.read())
-    for i in library:
-        if i == 'tracks':
-            tracks = pd.DataFrame(library['tracks'])
-        elif i == 'albums':
-            albums = pd.DataFrame(library['albums'])
-        elif i == 'shows':
-            subscriptions = pd.DataFrame(library['shows'])
-        else:
-            pass
+# Create inLibrary column - is true if tracks are saved in library and false if not saved in library
+streams['inLibrary'] = (streams['artistName'].isin(tracks['artist']) & streams['trackName'].isin(tracks['track'])).astype(bool)
+
+# Create an audioType column
+streams['audioType'] = np.where(streams['artistName'].isin(subscriptions['name']), 'Podcast', "Music")
+
+# Create a groupby dataframe used for totals
+streams_sum = streams.groupby(['artistName','trackName', 'msPlayed']).sum().copy()
+# streams_sum.drop(['inLibrary'], inplace=True)
+
+streams.to_csv('streams.csv', index=False)
+streams_sum.to_csv('streams_sum.csv')
+
+# Get rid of inLibrary column
+streams_sum = pd.read_csv('streams_sum.csv')
+streams_sum.drop('inLibrary', axis = 1, inplace=True)
+streams_sum = pd.read_csv('streams_sum.csv')
 
 #%%
 '''
@@ -77,7 +95,3 @@ Playlists
 # df = pd.read_json('MyData/Playlist1.json')
 # for i in df['playlists']:
 #     print(i['name'])
-#%%
-# Put the data in .csvs
-
-
