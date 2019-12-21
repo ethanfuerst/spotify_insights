@@ -68,8 +68,15 @@ streams['audioType'] = np.where(streams['artistName'].isin(subscriptions['name']
 # Create a date column that I can group by
 streams['date'] = streams['startTime'].dt.date
 
+def as_day(i):
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        return days[i]
+
+streams['weekday'] = streams['startTime'].dt.dayofweek
+streams['weekday'] = streams['weekday'].apply(as_day)
+
 # Reorder columns to look nicer
-streams = streams[['date', 'artistName', 'trackName', 'msPlayed', 'playTime', 'startTime', 'endTime', 'inLibrary', 'audioType']]
+streams = streams[['date', 'weekday', 'artistName', 'trackName', 'msPlayed', 'playTime', 'startTime', 'endTime', 'inLibrary', 'audioType']]
 
 #%%
 # Create a groupby dataframe used for totals
@@ -85,17 +92,20 @@ streams_days = streams_days.unstack(level=1)
 streams_days = streams_days.fillna(0).astype(int)
 streams_days.columns = streams_days.columns.get_level_values(1)
 streams_days = pd.DataFrame(streams_days.to_records())
+streams_days['weekday'] = pd.to_datetime(streams_days['date']).dt.dayofweek.apply(as_day)
 
 # This dataframe shows the total amount of time per track each day
 streams_tracks_days = streams.groupby(['date', 'artistName', 'trackName']).sum().copy()
 streams_tracks_days.sort_values(['date', 'artistName', 'msPlayed'], inplace=True)
 streams_tracks_days = pd.DataFrame(streams_tracks_days.to_records())
 streams_tracks_days.drop('inLibrary', axis=1, inplace=True)
+streams_tracks_days['weekday'] = pd.to_datetime(streams_tracks_days['date']).dt.dayofweek.apply(as_day)
 
 # This dataframe shows the total amount of time per artist each day
 streams_artists_days = streams_tracks_days.groupby(['date', 'artistName']).sum().copy()
 streams_artists_days.sort_values(['date', 'msPlayed'], inplace=True)
 streams_artists_days = pd.DataFrame(streams_artists_days.to_records())
+streams_artists_days['weekday'] = pd.to_datetime(streams_artists_days['date']).dt.dayofweek.apply(as_day)
 
 # Export to .csvs to work in Tableau
 streams.to_csv('streams.csv', index=False)
