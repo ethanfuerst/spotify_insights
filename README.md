@@ -14,6 +14,7 @@ My mission for this project is to visualize my Spotify data in multiple ways. I'
 
 **TODO:**
 
-- [ ] learn more about Plotly and Dash
-
-- [ ] create visualization ideas in Tableau
+- [ ] learn more about [Spotify Developer API](https://developer.spotify.com/)
+- [ ] plan out vizs in tableau
+- [ ] learn more about Plotly and Dash and create vis
+- [ ] make script to compare two diffrent users streaming data (maybe another repo)
