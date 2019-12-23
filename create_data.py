@@ -80,10 +80,9 @@ streams = streams[['date', 'weekday', 'artistName', 'trackName', 'msPlayed', 'pl
 
 #%%
 # Create a groupby dataframe used for totals
-streams_tracks = streams.groupby(['artistName','trackName']).sum().copy()
+streams_tracks = streams.groupby(['artistName','trackName', 'audioType']).sum().copy()
 streams_tracks = pd.DataFrame(streams_tracks.to_records())
 streams_tracks['inLibrary'] = streams_tracks['inLibrary'].astype(bool)
-
 
 # This dataframe shows the sum of listening for each day
 streams_days = streams.groupby(['date', 'audioType']).sum().copy()
@@ -95,14 +94,14 @@ streams_days = pd.DataFrame(streams_days.to_records())
 streams_days['weekday'] = pd.to_datetime(streams_days['date']).dt.dayofweek.apply(as_day)
 
 # This dataframe shows the total amount of time per track each day
-streams_tracks_days = streams.groupby(['date', 'artistName', 'trackName']).sum().copy()
+streams_tracks_days = streams.groupby(['date', 'artistName', 'trackName', 'audioType']).sum().copy()
 streams_tracks_days.sort_values(['date', 'artistName', 'msPlayed'], inplace=True)
 streams_tracks_days = pd.DataFrame(streams_tracks_days.to_records())
 streams_tracks_days.drop('inLibrary', axis=1, inplace=True)
 streams_tracks_days['weekday'] = pd.to_datetime(streams_tracks_days['date']).dt.dayofweek.apply(as_day)
 
 # This dataframe shows the total amount of time per artist each day
-streams_artists_days = streams_tracks_days.groupby(['date', 'artistName']).sum().copy()
+streams_artists_days = streams_tracks_days.groupby(['date', 'artistName', 'audioType']).sum().copy()
 streams_artists_days.sort_values(['date', 'msPlayed'], inplace=True)
 streams_artists_days = pd.DataFrame(streams_artists_days.to_records())
 streams_artists_days['weekday'] = pd.to_datetime(streams_artists_days['date']).dt.dayofweek.apply(as_day)
