@@ -24,8 +24,10 @@ __*.gitignore*__ - shows github what files to ignore when I commit my changes.
 
 [Spotify for Developers](https://developer.spotify.com/discover/) has given programmers the tools to create some really innovative projects that help people find new music, look deeper in to their favorite songs, visuualize your taste in music and more! Here are some of my favorite projects.
 
-
 [__*Organize Your Music* by Spotify__](http://organizeyourmusic.playlistmachinery.com/) - Analyze the danceability, positivty, energy of a playlist and more
 
 [__*Spotify Audio Analysis* by Hugh Rawlinson__](https://spotify-audio-analysis.glitch.me/) - See the rhythm sections of a song
 
+[__*Musicscape* by Nadia Campo Woytuk__](https://musicscapes.herokuapp.com/) - Get a cool visualization of your current taste in music
+
+[__*Discover Quickly* by Aliza Aufrichtig and Edward Lee__](https://discoverquickly.com/) - Wish you could listen to your whole Discover Weekly in a few minutes? You'll love this tool.
