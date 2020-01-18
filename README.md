@@ -25,7 +25,7 @@ __*.gitignore*__ - shows github what files to ignore when I commit my changes.
 [Spotify for Developers](https://developer.spotify.com/discover/) has given programmers the tools to create some really innovative projects that help people find new music, look deeper in to their favorite songs, visuualize your taste in music and more! Here are some of my favorite projects.
 
 
-[_*Organize Your Music* by Spotify_](http://organizeyourmusic.playlistmachinery.com/) - Analyze the danceability, positivty, energy of a playlist and more
+[__*Organize Your Music* by Spotify__](http://organizeyourmusic.playlistmachinery.com/) - Analyze the danceability, positivty, energy of a playlist and more
 
-[_*Spotify Audio Analysis* by Hugh Rawlinson_](https://spotify-audio-analysis.glitch.me/) - See the rhythm sections of a song
+[__*Spotify Audio Analysis* by Hugh Rawlinson__](https://spotify-audio-analysis.glitch.me/) - See the rhythm sections of a song
 
