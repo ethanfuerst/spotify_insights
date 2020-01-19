@@ -1,4 +1,4 @@
-# spotifyinsights
+# spotify_insights
 
 My mission for this project is to visualize my Spotify data in multiple ways. I'm interested to see how long I spent listening to my top songs, and how my listening changed between each year. I'd like to do something like [this project I found](https://github.com/luka1199/geo-heatmap) where people can download their own data and visualize it with my code. I think I will use Plotly and Dash to create interactive dashboards.
 
