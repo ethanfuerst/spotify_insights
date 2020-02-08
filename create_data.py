@@ -10,6 +10,19 @@ from tzlocal import get_localzone
 
 #%%
 '''
+EndSong contains all my listening data
+'''
+
+df = pd.read_json('MyData/EndSong.json', lines=True)
+df = df[['ts', 'username', 'ms_played',  'master_metadata_track_name', 'master_metadata_album_artist_name', 'master_metadata_album_album_name',
+ 'reason_start', 'reason_end', 'shuffle', 'offline', 'incognito_mode', 'episode_name', 'episode_show_name']].copy()
+df = df[df['ms_played'] != 0].copy()
+
+# make audio type column - podcast or music
+# use logic below to transform the df
+
+#%%
+'''
 Library
     Tracks
     Albums
