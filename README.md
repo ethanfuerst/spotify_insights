@@ -4,20 +4,22 @@ My mission for this project is to visualize my Spotify data in multiple ways. I'
 
 ## Files in this repository
 
-__*create_data.py*__ - .py file that takes data from the MyData folder and creates dataframes. I could add the rest of my code on to here or I could figure out how to take the dataframes directly in to another file where I will create the dashboards.
+### Python files
 
-__*streams.csv*__ - .csv linked to .twb
+__*create_data.py*__ - takes data from the MyData folder and creates .csv files
 
-__*stream_data.twb*__ - .twb where I can plan out visualizations
+#### .csvs
 
-__*.gitignore*__ - shows github what files to ignore when I commit my changes.
+__*streams.csv*__ - cleaned streams data from create_data.py
+
+__*streams_tracks/tracks_days/days/artists_days.csv*__ - cleaned streams data in assorted groupings from create_data.py
 
 ## TODO
 
 - [x] add weekday column to streams
+- [ ] change create_data.py to method that returns dataframe of cleaned streams (with dtypes)
+- [ ] brainstorm vizs on plotly
 - [ ] learn more about [Spotify Developer API](https://developer.spotify.com/)
-- [ ] plan out vizs in tableau
-- [ ] learn more about Plotly and Dash and create vis
 - [ ] make script to compare two diffrent users streaming data (maybe another repo)
 
 ## More resources
