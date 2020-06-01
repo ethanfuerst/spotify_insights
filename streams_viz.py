@@ -43,7 +43,6 @@ def time_label(x):
 # Bar chart grouped by year and month
 # Stacked by audio_type
 # Change colors
-print(df.columns)
 df_ = df.groupby(by=['month', 'audio_kind']).sum().reset_index().copy()
 
 df_ = pd.merge(df_[df_['audio_kind'] == 'Podcast'], df_[df_['audio_kind'] == 'Music'], on='month', how='outer')
