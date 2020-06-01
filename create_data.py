@@ -6,6 +6,7 @@ import glob
 import json
 import datetime
 import time
+import calendar
 from tzlocal import get_localzone
 
 #%%
@@ -73,6 +74,10 @@ def get_stream_data():
     # Add month and week column
     df['month'] = df['ts_tz'].dt.strftime("%b '%y")
     df['week'] = df['ts_tz'].dt.strftime("Week %W '%y")
+    df['weekday_#'] = df['ts_tz'].dt.weekday
+    df['weekday'] = df['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
+
+    # Get song/podcast total time from Spotify API
     return df
 
 #%%
