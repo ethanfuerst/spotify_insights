@@ -5,6 +5,7 @@ import numpy as np
 import datetime
 from dateutil.relativedelta import relativedelta
 import math
+import calendar
 import plotly
 import plotly.graph_objects as go
 import plotly.io as pio
@@ -32,12 +33,23 @@ def time_label(x):
     Takes ms and converts to string with days, hours mins
     '''
     if x >= 86400000 * 2:
-        return str(datetime.timedelta(seconds=x//1000).days) + ' days, '                 + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and '                 + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
+        return str(datetime.timedelta(seconds=x//1000).days) + ' days, ' \
+             + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
+                  + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
     elif x >= 86400000:
-        return str(datetime.timedelta(seconds=x//1000).days) + ' day, '                 + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and '                 + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
+        return str(datetime.timedelta(seconds=x//1000).days) + ' day, ' \
+             + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
+                  + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
+    elif x >= 3600000:
+        return str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
+             + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
     else:
-        return str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and '                 + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
+        return str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
 
+pod = df[df['audio_kind'] == 'Podcast'].copy()
+mus = df[df['audio_kind'] == 'Music'].copy()
+timespan = df['ts_tz'].max() - df['ts_tz'].min()
+span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
 
 # %%
 # Bar chart grouped by year and month
@@ -113,4 +125,77 @@ fig.show()
 # %%
 # Listening breakdown by hour of day
 # Radial bar stacked bar chart
+# Option to group by year
+
+
+
+#%%
+# Listening breakdown by weekday
+# 
+
+#%%
+df_ = df.groupby('weekday_#').mean().reset_index()[['weekday_#', 'ms_played']].copy()
+df_['weekday'] = df_['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
+df_['theta'] = (df_['weekday_#'] + 1) * (360/7)
+
+fig = go.Figure(
+    go.Scatterpolar(
+        r = df_['ms_played'],
+        theta = df_['theta'],
+        mode = 'lines',
+        name = 'Figure 8',
+        line_color = 'peru'
+    )
+)
+
+fig.show()
+
+#%%
+# Add since I started listening to podcasts
+
+df.groupby(['weekday', 'audio_kind']).sum()
+
+#%% 
+# Podcast breakdown
+# Top 5 podcasts
+top_pod = df[df['audio_kind'] == 'Podcast'].groupby(['show']).sum().reset_index().sort_values('ms_played', ascending=False).reset_index(drop=True).copy()
+# Podcasts must have 10 or more total minutes of listening to be counted
+top_pod = top_pod[top_pod['ms_played'] >= 600000].copy()
+top_pod['tot_format'] = top_pod['ms_played'].apply(time_label)
+top_pod['rank'] = top_pod.index + 1
+top_pod = top_pod[['show', 'ms_played', 'tot_format', 'rank']].copy()
+
+pod_ep_count = pod.groupby(['show','episode_name']).count().reset_index().sort_values('username', ascending=False)[['show', 'username']].groupby('show').sum().reset_index().sort_values('username', ascending=False).copy()
+pod_ep_count.columns = ['show', 'ep_count']
+
+merged = pd.merge(top_pod, pod_ep_count, on='show').copy()
+
+med_ep = pod.groupby(['show', 'episode_name']).sum().reset_index()[['show', 'ms_played']].groupby('show').median().reset_index().copy()
+
+merged = pd.merge(merged, med_ep, on='show', suffixes=('_tot', '_ep_med')).copy()
+merged['med_ep_format'] = merged['ms_played_ep_med'].apply(time_label)
+
+alt_greys = ['#cccccc', '#e4e4e4'] * len(df)
+fig = go.Figure(data=[go.Table(
+    header=dict(values=['Rank', 'Podcast', 'Total time listened', '# episodes listened to', 'Median time per listen'],
+                fill_color='#5C7DAA',
+                font_color='white',
+                align='left'),
+    cells=dict(values=[merged['rank'], merged['show'], merged['tot_format'], merged['ep_count'], merged['med_ep_format']],
+                fill_color=[alt_greys[:len(top_pod)]]*3,
+                font_color='black',
+                align='left'))])
+
+fig.update_layout(
+    title=dict(
+        text='My podcast listening history on Spotify',
+        font=dict(
+            size=22,
+            color='#000000'
+        ),
+        x=.5
+    ),
+    width=700,
+    height=1000
+)
 
