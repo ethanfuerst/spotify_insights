@@ -67,7 +67,12 @@ def get_stream_data():
 
     df['season'] = df['ts_tz'].dt.month.apply(season)
 
+    # Move datetime columns to fathest left on df
     df = df[['ts_utc', 'ts_tz'] + list(df.columns[1:-5]) + list(df.columns[-3:])].copy()
+
+    # Add month and week column
+    df['month'] = df['ts_tz'].dt.strftime("%b '%y")
+    df['week'] = df['ts_tz'].dt.strftime("Week %W '%y")
     return df
 
 #%%
