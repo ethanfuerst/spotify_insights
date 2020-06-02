@@ -52,6 +52,9 @@ def time_label(x):
 # Change colors
 
 def monthly_hist(df):
+    '''
+    Shows podcasts/music grouped by month and year
+    '''
     df_ = df.groupby(by=['month', 'audio_kind']).sum().reset_index().copy()
 
     df_ = pd.merge(df_[df_['audio_kind'] == 'Podcast'], df_[df_['audio_kind'] == 'Music'], on='month', how='outer')
@@ -114,10 +117,15 @@ def monthly_hist(df):
     )
     fig.show()
 
+    return fig
+
 #%% 
 # Podcast breakdown
 # Top 5 podcasts
 def pod_list(df):
+    '''
+    Shows list of podcasts as table
+    '''
     pod = df[df['audio_kind'] == 'Podcast'].copy()
     top_pod = pod.groupby(['show']).sum().reset_index().sort_values('ms_played', ascending=False).reset_index(drop=True).copy()
     # Podcasts must have 10 or more total minutes of listening to be counted
@@ -168,6 +176,8 @@ def pod_list(df):
                             text ='from {0} to {1}'.format(df['ts_tz'].min().strftime('%B %d, %Y'), df['ts_tz'].max().strftime('%B %d, %Y')))]
     )
     fig.show()
+
+    return fig
 
 pod_list(df)
 
