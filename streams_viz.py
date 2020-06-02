@@ -204,16 +204,24 @@ print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum()
 
 # %%
 # todo
-# - Top 10 artists/songs/podcasts in a year, season, month, week
-
+# - Top 10 artists/songs/podcasts in by year, season, month, week
 
 # %%
 # todo
 # - Listening breakdown by hour of day
+# - include difference for work hours
 # - Radial bar stacked bar chart
 # - Option to group by year
 
+#%%
+# todo
+# - songs most listened to on working hours/weekend
+# - use 1m, 6m, ytd rangeselector and rangeslider
 
+#%%
+# todo
+# - most popular artist by time of day
+# - use 1m, 6m, ytd rangeselector and rangeslider
 
 #%%
 # todo
@@ -239,16 +247,29 @@ print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum()
 # todo
 # - When you first listened to podcast
 # - Limit podcasts by min playing time/freq
+# ? maybe make in to a table? is there a way to filter with long dropdown?
 
 #%%
 # todo
 # - When you first started listening to artist
 # - Limit artists by min playing time/freq
-
+# ? maybe make in to a table? is there a way to filter with long dropdown?
 
 #%%
 # todo
-# - Top 100 artists of all time
+# - Top 100 or 50 artists of all time
+# - show top 3-5 songs by time and plays
+
+#%%
+# todo
+# - line chart for each day
+# - lines for both podcasts and music
+# - use timestamp slider on plotly
+
+#%%
+# todo 
+# - music by release year
+# * need spotify API for this
 
 #%%
 
