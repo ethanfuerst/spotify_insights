@@ -19,8 +19,9 @@ __*streams_tracks/tracks_days/days/artists_days.csv*__ - cleaned streams data in
 ## TODO
 
 - [x] add weekday column to streams
-- [ ] change create_data.py to method that returns dataframe of cleaned streams (with dtypes)
-- [ ] brainstorm vizs on plotly
+- [x] change create_data.py to method that returns dataframe of cleaned streams (with dtypes)
+- [ ] brainstorm big picture idea
+  - [ ] brainstorm vizs on plotly
 - [ ] learn more about [Spotify Developer API](https://developer.spotify.com/)
 - [ ] make script to compare two diffrent users streaming data (maybe another repo)
 
