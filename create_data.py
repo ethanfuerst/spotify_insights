@@ -31,11 +31,11 @@ def get_stream_data():
             episode_show_name='show'
         )).copy()
 
-    # Removes all entries with null tracka and episodes - counts for 1.5 percent of ms_played sum
-    # Not sure what these records are
+    # - Removes all entries with null tracka and episodes - counts for 1.5 percent of ms_played sum
+    # -  Not sure what these records are
     df = df[(df['track'] != '') | (df['episode_name'] != '')].copy()
 
-    # make audio type column - podcast or music
+    # - make audio type column - podcast or music
     def audio_kind(row):
         if row['track'] == '' and row['artist'] == '' and row['album'] == '':
             return 'Podcast'
@@ -46,7 +46,7 @@ def get_stream_data():
 
     df['audio_kind'] = df.apply(lambda row: audio_kind(row), axis=1)
 
-    # make time played column 0-30 (skipped) or 30+ (played) if music and other for podcast
+    # - make time played column 0-30 (skipped) or 30+ (played) if music and other for podcast
     def skipped(row):
         if row['ms_played'] < 30000:
             return True
@@ -55,7 +55,7 @@ def get_stream_data():
 
     df['skipped'] = df.apply(lambda row: skipped(row), axis=1)
 
-    # Create season column
+    # - Create season column
     def season(x):
         if x > 2 and x < 6:
             return 'Spring'
@@ -68,16 +68,16 @@ def get_stream_data():
 
     df['season'] = df['ts_tz'].dt.month.apply(season)
 
-    # Move datetime columns to fathest left on df
+    # - Move datetime columns to fathest left on df
     df = df[['ts_utc', 'ts_tz'] + list(df.columns[1:-5]) + list(df.columns[-3:])].copy()
 
-    # Add month and week column
+    # - Add month and week column
     df['month'] = df['ts_tz'].dt.strftime("%b '%y")
     df['week'] = df['ts_tz'].dt.strftime("Week %W '%y")
     df['weekday_#'] = df['ts_tz'].dt.weekday
     df['weekday'] = df['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
 
-    # Get song/podcast total time from Spotify API
+    # - Get song/podcast total time from Spotify API
     return df
 
 #%%
@@ -100,10 +100,10 @@ if __name__ == '__main__':
             else:
                 pass
 
-    # List of files containing streaming history
+    # - List of files containing streaming history
     streaming_hist = glob.glob('MyData/StreamingHistory*.json')
 
-    # Make a df called streams with all the streaming history
+    # - Make a df called streams with all the streaming history
     streams = pd.DataFrame()
     for i in streaming_hist:
         i_df = pd.read_json(i)
@@ -112,7 +112,6 @@ if __name__ == '__main__':
     # Sort the df by endTime
     # streams.sort_values('endTime', inplace=True)
     # streams.reset_index(drop=True, inplace=True)
-
     # Removing all rows where 0 msPlayed is recorded
     # streams = streams[streams['msPlayed'] != 0].copy()
 

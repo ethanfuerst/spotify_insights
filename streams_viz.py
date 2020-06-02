@@ -32,6 +32,8 @@ def time_label(x):
     '''
     Takes ms and converts to string with days, hours mins
     '''
+    # todo Use mod to dynamically add days hours and minutes strings
+    # *     ex. if x mod (ms in day) > 0 then add 'day', etc.
     if x >= 86400000 * 2:
         return str(datetime.timedelta(seconds=x//1000).days) + ' days, ' \
              + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
@@ -47,9 +49,9 @@ def time_label(x):
         return str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
 
 # %%
-# Bar chart grouped by year and month
-# Stacked by audio_type
-# Change colors
+# - Bar chart grouped by year and month
+# - Stacked by audio_type
+# todo Change colors
 
 def monthly_hist(df):
     '''
@@ -120,15 +122,15 @@ def monthly_hist(df):
     return fig
 
 #%% 
-# Podcast breakdown
-# Top 5 podcasts
+# - Podcast breakdown
+# - Top 5 podcasts
 def pod_list(df):
     '''
     Shows list of podcasts as table
     '''
     pod = df[df['audio_kind'] == 'Podcast'].copy()
     top_pod = pod.groupby(['show']).sum().reset_index().sort_values('ms_played', ascending=False).reset_index(drop=True).copy()
-    # Podcasts must have 10 or more total minutes of listening to be counted
+    # - Podcasts must have 10 or more total minutes of listening to be counted
     top_pod = top_pod[top_pod['ms_played'] >= 600000].copy()
     top_pod['tot_format'] = top_pod['ms_played'].apply(time_label)
     top_pod['rank'] = top_pod.index + 1
@@ -182,7 +184,7 @@ def pod_list(df):
 pod_list(df)
 
 #%%
-# Return plotly table figure with insights
+# - Return plotly table figure with insights
 
 pod = df[df['audio_kind'] == 'Podcast'].copy()
 mus = df[df['audio_kind'] == 'Music'].copy()
@@ -201,21 +203,23 @@ print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum()
 
 
 # %%
-# Top 10 artists/songs/podcasts in a year, season, month, week
+# todo
+# - Top 10 artists/songs/podcasts in a year, season, month, week
 
 
 # %%
-# Listening breakdown by hour of day
-# Radial bar stacked bar chart
-# Option to group by year
+# todo
+# - Listening breakdown by hour of day
+# - Radial bar stacked bar chart
+# - Option to group by year
 
 
 
 #%%
-# Listening breakdown by weekday
+# todo
+# - Listening breakdown by weekday
 # 
 
-#%%
 # df_ = df.groupby('weekday_#').mean().reset_index()[['weekday_#', 'ms_played']].copy()
 # df_['weekday'] = df_['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
 # df_['theta'] = (df_['weekday_#'] + 1) * (360/7)
@@ -232,23 +236,25 @@ print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum()
 # fig.show()
 
 # %%
-# When you first listened to podcast
-# Limit podcasts by min playing time/freq
+# todo
+# - When you first listened to podcast
+# - Limit podcasts by min playing time/freq
 
 #%%
-# When you first started listening to artist
-# Limit artists by min playing time/freq
+# todo
+# - When you first started listening to artist
+# - Limit artists by min playing time/freq
 
 
 #%%
-# Top 100 artists of all time
+# todo
+# - Top 100 artists of all time
 
 #%%
-# Given date range
 
 def insights(df):
     '''
-    Figure out what this does
+    Will make one large html file with a dashboard of the users historical listening data
     '''
     # pod = df[df['audio_kind'] == 'Podcast'].copy()
     # mus = df[df['audio_kind'] == 'Music'].copy()
@@ -258,7 +264,7 @@ def insights(df):
     monthly_hist(df)
 
     print('Music\n')
-    
+    # * On days you listened to Spotify/music/playlists you listen to x on average
 
     print('Podcasts')
     pod_list(df)
