@@ -4,13 +4,13 @@ My mission for this project is to visualize my Spotify data in multiple ways. I'
 
 ## Files in this repository
 
-### Python files
+### .py
 
 __*create_data.py*__ - takes data from the MyData folder in get_stream_data() and creates .csv files
 
 __*streams_viz.py*__ - uses data from get_stream_data() and creates plotly visualizations
 
-#### .csvs
+#### .csv
 
 __*streams.csv*__ - cleaned streams data from create_data.py
 
