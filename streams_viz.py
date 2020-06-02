@@ -257,6 +257,12 @@ print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum()
 
 #%%
 # todo
+# - History of listening to a song
+# - Limit songs by min playing time/freq
+# ? maybe make in to a table? is there a way to filter with long dropdown?
+
+#%%
+# todo
 # - Top 100 or 50 artists of all time
 # - show top 3-5 songs by time and plays
 
