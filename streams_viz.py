@@ -181,6 +181,25 @@ def pod_list(df):
 
 pod_list(df)
 
+#%%
+# Return plotly table figure with insights
+
+pod = df[df['audio_kind'] == 'Podcast'].copy()
+mus = df[df['audio_kind'] == 'Music'].copy()
+span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
+span_ms = span_sec * 1000
+
+print('From {0} to {1}:'.format(df['ts_tz'].min().strftime('%B %d, %Y %-I:%M:%S %p'), df['ts_tz'].max().strftime('%B %d, %Y %-I:%M:%S %p')))
+print('You listened to {} of Spotify'.format(time_label(int(df['ms_played'].sum()))))
+print('{0}% of that was spent listening to music ({1})'.format(round(int(mus['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
+                                                                time_label(int(mus['ms_played'].sum()))))
+print('{0}% of that was spent listening to podcasts ({1})\n'.format(round(int(pod['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
+                                                                time_label(int(pod['ms_played'].sum()))))
+
+print('Over this time span, {}% of your time was spent listening to Spotify'.format(round((df['ms_played'].sum() / span_ms) * 100, 2)))
+print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum() / span_ms) * 100, 2), round((pod['ms_played'].sum() / span_ms) * 100, 2)))
+
+
 # %%
 # Top 10 artists/songs/podcasts in a year, season, month, week
 
@@ -220,27 +239,24 @@ pod_list(df)
 # When you first started listening to artist
 # Limit artists by min playing time/freq
 
+
+#%%
+# Top 100 artists of all time
+
 #%%
 # Given date range
 
 def insights(df):
-    pod = df[df['audio_kind'] == 'Podcast'].copy()
-    mus = df[df['audio_kind'] == 'Music'].copy()
-    span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
-    span_ms = span_sec * 1000
+    '''
+    Figure out what this does
+    '''
+    # pod = df[df['audio_kind'] == 'Podcast'].copy()
+    # mus = df[df['audio_kind'] == 'Music'].copy()
+    # span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
+    # span_ms = span_sec * 1000
 
     monthly_hist(df)
 
-    print('From {0} to {1}:'.format(df['ts_tz'].min().strftime('%B %d, %Y %-I:%M:%S %p'), df['ts_tz'].max().strftime('%B %d, %Y %-I:%M:%S %p')))
-    print('You listened to {} of Spotify'.format(time_label(int(df['ms_played'].sum()))))
-    print('{0}% of that was spent listening to music ({1})'.format(round(int(mus['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
-                                                                    time_label(int(mus['ms_played'].sum()))))
-    print('{0}% of that was spent listening to podcasts ({1})\n'.format(round(int(pod['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
-                                                                    time_label(int(pod['ms_played'].sum()))))
-
-    print('Over this time span, {}% of your time was spent listening to Spotify'.format(round((df['ms_played'].sum() / span_ms) * 100, 2)))
-    print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum() / span_ms) * 100, 2), round((pod['ms_played'].sum() / span_ms) * 100, 2)))
-    
     print('Music\n')
     
 
