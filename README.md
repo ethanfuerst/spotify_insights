@@ -6,7 +6,9 @@ My mission for this project is to visualize my Spotify data in multiple ways. I'
 
 ### Python files
 
-__*create_data.py*__ - takes data from the MyData folder and creates .csv files
+__*create_data.py*__ - takes data from the MyData folder in get_stream_data() and creates .csv files
+
+__*streams_viz.py*__ - uses data from get_stream_data() and creates plotly visualizations
 
 #### .csvs
 
