@@ -78,6 +78,8 @@ def get_stream_data():
     df['weekday'] = df['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
 
     # - Get song/podcast total time from Spotify API
+    # - Change bash brothers to Lonely Island
+    df['artist'] = df['artist'].replace('The Unauthorized Bash Brothers Experience', 'The Lonely Island')
     return df
 
 #%%
