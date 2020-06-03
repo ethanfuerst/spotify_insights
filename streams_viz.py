@@ -13,8 +13,14 @@ from plotly.colors import n_colors
 import plotly.express as px
 import plotly.figure_factory as ff
 from tzlocal import get_localzone
+from humanfriendly import format_timespan
 from create_data import get_stream_data
 df = get_stream_data()
+
+pod = df[df['audio_kind'] == 'Podcast'].copy()
+mus = df[df['audio_kind'] == 'Music'].copy()
+span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
+span_ms = span_sec * 1000
 
 def day_label(i):
     '''
@@ -32,28 +38,15 @@ def time_label(x):
     '''
     Takes ms and converts to string with days, hours mins
     '''
-    # todo Use mod to dynamically add days hours and minutes strings
-    # *     ex. if x mod (ms in day) > 0 then add 'day', etc.
-    if x >= 86400000 * 2:
-        return str(datetime.timedelta(seconds=x//1000).days) + ' days, ' \
-             + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
-                  + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
-    elif x >= 86400000:
-        return str(datetime.timedelta(seconds=x//1000).days) + ' day, ' \
-             + str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
-                  + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
-    elif x >= 3600000:
-        return str(datetime.timedelta(seconds=x//1000).seconds//3600) + ' hours and ' \
-             + str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
-    else:
-        return str((datetime.timedelta(seconds=x//1000).seconds//60)%60) + ' minutes'
+    seconds = (datetime.timedelta(seconds=x//1000)).total_seconds()
+    return format_timespan(seconds)
 
 # %%
 # - Bar chart grouped by year and month
 # - Stacked by audio_type
 # todo Change colors
 
-def monthly_hist(df):
+def monthly_hist(df, show=False):
     '''
     Shows podcasts/music grouped by month and year
     '''
@@ -117,14 +110,18 @@ def monthly_hist(df):
         width=900,
         height=600
     )
-    fig.show()
+    
+    if show:
+        fig.show()
 
     return fig
+
+monthly_hist(df)
 
 #%% 
 # - Podcast breakdown
 # - Top 5 podcasts
-def pod_list(df):
+def pod_list(df, show=False):
     '''
     Shows list of podcasts as table
     '''
@@ -177,30 +174,35 @@ def pod_list(df):
                             showarrow=False,
                             text ='from {0} to {1}'.format(df['ts_tz'].min().strftime('%B %d, %Y'), df['ts_tz'].max().strftime('%B %d, %Y')))]
     )
-    fig.show()
+
+    if show:
+        fig.show()
 
     return fig
 
 pod_list(df)
 
 #%%
-# - Return plotly table figure with insights
+# - adds text to final html 
 
-pod = df[df['audio_kind'] == 'Podcast'].copy()
-mus = df[df['audio_kind'] == 'Music'].copy()
-span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
-span_ms = span_sec * 1000
+def sum_str(df):
+    pod = df[df['audio_kind'] == 'Podcast'].copy()
+    mus = df[df['audio_kind'] == 'Music'].copy()
+    span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
+    span_ms = span_sec * 1000
 
-print('From {0} to {1}:'.format(df['ts_tz'].min().strftime('%B %d, %Y %-I:%M:%S %p'), df['ts_tz'].max().strftime('%B %d, %Y %-I:%M:%S %p')))
-print('You listened to {} of Spotify'.format(time_label(int(df['ms_played'].sum()))))
-print('{0}% of that was spent listening to music ({1})'.format(round(int(mus['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
-                                                                time_label(int(mus['ms_played'].sum()))))
-print('{0}% of that was spent listening to podcasts ({1})\n'.format(round(int(pod['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
-                                                                time_label(int(pod['ms_played'].sum()))))
+    final_str = ''
 
-print('Over this time span, {}% of your time was spent listening to Spotify'.format(round((df['ms_played'].sum() / span_ms) * 100, 2)))
-print("That's {0}% music and {1}% podcasts".format(round((mus['ms_played'].sum() / span_ms) * 100, 2), round((pod['ms_played'].sum() / span_ms) * 100, 2)))
+    final_str += 'From {0} to {1}:\n'.format(df['ts_tz'].min().strftime('%B %d, %Y %-I:%M:%S %p'), df['ts_tz'].max().strftime('%B %d, %Y %-I:%M:%S %p'))
+    final_str += 'You listened to {} of Spotify.\n'.format(time_label(int(df['ms_played'].sum())))
+    final_str +=  '{0}% of that was spent listening to music. ({1})\n'.format(round(int(mus['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
+                                                                    time_label(int(mus['ms_played'].sum())))
+    final_str += '{0}% of that was spent listening to podcasts. ({1})\n\n'.format(round(int(pod['ms_played'].sum())/int(df['ms_played'].sum()) * 100,2), \
+                                                                    time_label(int(pod['ms_played'].sum())))
+    final_str += 'Over this time span, {}% of your time was spent listening to Spotify.\n'.format(round((df['ms_played'].sum() / span_ms) * 100, 2))
+    final_str += "That's {0}% music and {1}% podcasts.\n".format(round((mus['ms_played'].sum() / span_ms) * 100, 2), round((pod['ms_played'].sum() / span_ms) * 100, 2))
 
+    return final_str
 
 # %%
 # todo
@@ -287,6 +289,8 @@ def insights(df):
     # mus = df[df['audio_kind'] == 'Music'].copy()
     # span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
     # span_ms = span_sec * 1000
+
+    print(sum_str(df))
 
     monthly_hist(df)
 
