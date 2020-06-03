@@ -19,6 +19,7 @@ df = get_stream_data()
 
 pod = df[df['audio_kind'] == 'Podcast'].copy()
 mus = df[df['audio_kind'] == 'Music'].copy()
+
 span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
 span_ms = span_sec * 1000
 
@@ -227,6 +228,17 @@ def sum_str(df):
 
 #%%
 # todo
+# - bar chart of top 5 songs
+t_songs = mus.groupby(['artist', 'track']).sum().sort_values('ms_played', ascending=False).reset_index()[['artist', 'track', 'ms_played']]
+t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
+
+
+#%%
+# todo
+# - scatterplot of some sort
+# - total time song played vs count?
+#%%
+# todo
 # - Listening breakdown by weekday
 # 
 
@@ -266,7 +278,29 @@ def sum_str(df):
 #%%
 # todo
 # - Top 100 or 50 artists of all time
-# - show top 3-5 songs by time and plays
+# - show top 3 or 5 songs by time and plays
+
+num_top = 5
+
+# - sort df by top artists
+top_artists = mus.groupby(by=['artist']).sum().reset_index()[['artist', 'ms_played']].sort_values(by='ms_played', ascending=False).head(100).reset_index(drop=True).rename(columns={'ms_played':'tot_lstn'})
+# - group mus by artist and track
+top_3_from_t_a = mus[(mus['artist'].isin(top_artists['artist'])) & (mus['ms_played'] > 10)].groupby(['artist', 'track']).sum().reset_index()[['artist', 'track', 'ms_played']].sort_values(by=['artist', 'ms_played'], ascending=False).groupby(['artist']).head(num_top)
+# - get playcounts from artists and tracks
+p_counts = mus[(mus['artist'].isin(top_artists['artist'])) & (mus['ms_played'] > 10)].groupby(['artist', 'track']).count().reset_index()[['artist', 'track', 'username']]
+df_ = pd.merge(top_3_from_t_a, p_counts, how='inner', on=['artist', 'track']).rename(columns={'username':'count'})
+df_ = pd.merge(df_, top_artists, how='outer', on='artist')
+
+
+df_['t_format'] = df_['ms_played'].apply(time_label)
+
+df_['tot_format'] = df_['tot_lstn'].apply(time_label)
+df_['pct_tot_lstn'] = round(df_['ms_played']/df_['tot_lstn'],4) * 100
+# - Sort by total listening time and then induvidual song
+df_ = df_.sort_values(['tot_lstn', 'ms_played'], ascending=False)
+
+# - Bar chart with top songs of all time
+# - df_.sort_values('ms_played', ascending=False).head(50).reset_index(drop=True)[['artist', 'track', 't_format']]
 
 #%%
 # todo
@@ -275,10 +309,28 @@ def sum_str(df):
 # - use timestamp slider on plotly
 
 #%%
+# todo
+# - Top albums and songs from albums
+
+#%%
 # todo 
 # - music by release year
 # * need spotify API for this
 
+
+#%%
+# - Single artist analysis
+# todo
+# - add counts
+
+mus = mus.replace('The Unauthorized Bash Brothers Experience', 'The Lonely Island').copy()
+li = mus[mus['artist'] == 'The Lonely Island'].groupby('track').sum().reset_index().sort_values('ms_played')[['track', 'ms_played']]
+li['time played'] = li['ms_played'].apply(time_label)
+li = li.sort_values('ms_played', ascending=False)[['track', 'time played']].reset_index(drop=True)
+
+trav = mus[mus['artist'] == 'Travis Scott'].groupby('track').sum().reset_index()[['track', 'ms_played']]
+trav['time played'] = trav['ms_played'].apply(time_label)
+trav = trav.sort_values('ms_played', ascending=False)[['track', 'time played']].reset_index(drop=True)
 #%%
 
 def insights(df):
