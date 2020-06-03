@@ -82,6 +82,8 @@ def get_stream_data():
 
 #%%
 if __name__ == '__main__':
+    # - This is for the data that Spotify gave me that contains just the last month
+    # - They were able to give me more data so this might not be needed
     '''
     Library
         Tracks
