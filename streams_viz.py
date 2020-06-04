@@ -215,6 +215,22 @@ def sum_str(df):
 # - include difference for work hours
 # - Radial bar stacked bar chart
 # - Option to group by year
+# 
+
+# df_ = df.groupby('weekday_#').mean().reset_index()[['weekday_#', 'ms_played']].copy()
+# df_['weekday'] = df_['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
+# df_['theta'] = (df_['weekday_#'] + 1) * (360/7)
+
+# fig = go.Figure(
+#     go.Scatterpolar(
+#         r = df_['ms_played'],
+#         theta = df_['theta'],
+#         mode = 'lines',
+#         name = 'Average listening by weekday'
+#     )
+# )
+
+# fig.show()
 
 #%%
 # todo
@@ -235,27 +251,7 @@ t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
 
 #%%
 # todo
-# - scatterplot of some sort
-# - total time song played vs count?
-#%%
-# todo
 # - Listening breakdown by weekday
-# 
-
-# df_ = df.groupby('weekday_#').mean().reset_index()[['weekday_#', 'ms_played']].copy()
-# df_['weekday'] = df_['weekday_#'].apply(lambda x: list(calendar.day_name)[x])
-# df_['theta'] = (df_['weekday_#'] + 1) * (360/7)
-
-# fig = go.Figure(
-#     go.Scatterpolar(
-#         r = df_['ms_played'],
-#         theta = df_['theta'],
-#         mode = 'lines',
-#         name = 'Average listening by weekday'
-#     )
-# )
-
-# fig.show()
 
 # %%
 # todo
@@ -344,6 +340,13 @@ fig.show()
 #%%
 # todo
 # - Top albums and songs from albums
+
+
+#%%
+# todo
+# - scatterplot of some sort
+# - total time song played vs count?
+
 
 #%%
 # todo 
