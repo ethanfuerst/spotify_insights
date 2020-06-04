@@ -279,7 +279,8 @@ t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
 # todo
 # - Top 100 or 50 artists of all time
 # - show top 3 or 5 songs by time and plays
-# * group together so each row is artist, total time,  song1 - time \n song2 - time \n song3 - time
+# - grouped together so each row is artist, total time,  song1 - time \n song2 - time \n song3 - time
+# todo change column width, not all the same. artist small, last one large
 
 # - num of top songs to include for each artist
 num_top = 5
@@ -287,21 +288,49 @@ num_top = 5
 num_artists = 100
 
 # - sort df by top artists
-top_artists = mus.groupby(by=['artist']).sum().reset_index()[['artist', 'ms_played']].sort_values(by='ms_played', ascending=False).head(num_artists).reset_index(drop=True).rename(columns={'ms_played':'tot_lstn'})
+top_artists = mus[mus != 'Various Artists'].groupby(by=['artist']).sum().reset_index()[['artist', 'ms_played']].sort_values(by='ms_played', ascending=False).head(num_artists).reset_index(drop=True).rename(columns={'ms_played':'tot_lstn'})
 # - group mus by artist and track
 top_3_from_t_a = mus[(mus['artist'].isin(top_artists['artist'])) & (mus['ms_played'] > 10)].groupby(['artist', 'track']).sum().reset_index()[['artist', 'track', 'ms_played']].sort_values(by=['artist', 'ms_played'], ascending=False).groupby(['artist']).head(num_top)
 # - get playcounts from artists and tracks
 p_counts = mus[(mus['artist'].isin(top_artists['artist'])) & (mus['ms_played'] > 10)].groupby(['artist', 'track']).count().reset_index()[['artist', 'track', 'username']]
 df_ = pd.merge(top_3_from_t_a, p_counts, how='inner', on=['artist', 'track']).rename(columns={'username':'count'})
 df_ = pd.merge(df_, top_artists, how='outer', on='artist')
-
-
 df_['t_format'] = df_['ms_played'].apply(time_label)
-
+df_['count'] = df_['count'].astype(str) + ' plays'
+grouped = df_[['track', 'count', 't_format']].agg(' - '.join,1).groupby(df_.artist).agg('<br>'.join).to_frame('track_format').reset_index().copy()
 df_['tot_format'] = df_['tot_lstn'].apply(time_label)
-df_['pct_tot_lstn'] = round(df_['ms_played']/df_['tot_lstn'],4) * 100
+df_ = df_[['artist', 'tot_lstn', 'tot_format']].drop_duplicates().sort_values('tot_lstn', ascending=False).reset_index(drop=True)
+
+df_ = pd.merge(df_, grouped, on='artist').sort_values(['tot_lstn'], ascending=False).reset_index(drop=True)
 # - Sort by total listening time and then induvidual song
-df_ = df_.sort_values(['tot_lstn', 'ms_played'], ascending=False).reset_index(drop=True)
+df_['artist'] = (df_.index + 1).astype(str) + '. ' + df_['artist']
+# - index+1. artist, track_format, tot_lstn, tot_format
+df_ = df_[['artist', 'tot_format', 'track_format']].copy()
+
+
+fig = go.Figure(data=[go.Table(
+    header=dict(values=['Artist', 'Total time listened', 'Top {} songs by time listened'.format(num_top)],
+                fill_color='#5C7DAA',
+                font_color='white',
+                align='left'),
+    cells=dict(values=[df_['artist'], df_['tot_format'], df_['track_format']],
+                font_color='black',
+                align='left'))])
+
+fig.update_layout(
+    title=dict(
+        text='Top {} artists'.format(num_artists),
+        font=dict(
+            size=24,
+            color='#000000'
+        ),
+        x=.5
+    ),
+    width=1000,
+    height=700
+)
+
+fig.show()
 
 # - Bar chart with top songs of all time
 # - df_.sort_values('ms_played', ascending=False).head(50).reset_index(drop=True)[['artist', 'track', 't_format']]
