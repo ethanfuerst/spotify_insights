@@ -228,7 +228,7 @@ def sum_str(df):
 
 #%%
 # todo
-# - bar chart of top 5 songs
+# - bar chart of top 50 songs
 t_songs = mus.groupby(['artist', 'track']).sum().sort_values('ms_played', ascending=False).reset_index()[['artist', 'track', 'ms_played']]
 t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
 
@@ -279,11 +279,15 @@ t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
 # todo
 # - Top 100 or 50 artists of all time
 # - show top 3 or 5 songs by time and plays
+# * group together so each row is artist, total time,  song1 - time \n song2 - time \n song3 - time
 
+# - num of top songs to include for each artist
 num_top = 5
+# - num of top artists to include
+num_artists = 100
 
 # - sort df by top artists
-top_artists = mus.groupby(by=['artist']).sum().reset_index()[['artist', 'ms_played']].sort_values(by='ms_played', ascending=False).head(100).reset_index(drop=True).rename(columns={'ms_played':'tot_lstn'})
+top_artists = mus.groupby(by=['artist']).sum().reset_index()[['artist', 'ms_played']].sort_values(by='ms_played', ascending=False).head(num_artists).reset_index(drop=True).rename(columns={'ms_played':'tot_lstn'})
 # - group mus by artist and track
 top_3_from_t_a = mus[(mus['artist'].isin(top_artists['artist'])) & (mus['ms_played'] > 10)].groupby(['artist', 'track']).sum().reset_index()[['artist', 'track', 'ms_played']].sort_values(by=['artist', 'ms_played'], ascending=False).groupby(['artist']).head(num_top)
 # - get playcounts from artists and tracks
@@ -297,7 +301,7 @@ df_['t_format'] = df_['ms_played'].apply(time_label)
 df_['tot_format'] = df_['tot_lstn'].apply(time_label)
 df_['pct_tot_lstn'] = round(df_['ms_played']/df_['tot_lstn'],4) * 100
 # - Sort by total listening time and then induvidual song
-df_ = df_.sort_values(['tot_lstn', 'ms_played'], ascending=False)
+df_ = df_.sort_values(['tot_lstn', 'ms_played'], ascending=False).reset_index(drop=True)
 
 # - Bar chart with top songs of all time
 # - df_.sort_values('ms_played', ascending=False).head(50).reset_index(drop=True)[['artist', 'track', 't_format']]
@@ -322,6 +326,7 @@ df_ = df_.sort_values(['tot_lstn', 'ms_played'], ascending=False)
 # - Single artist analysis
 # todo
 # - add counts
+# - maybe list on a table and filter by artist?
 
 mus = mus.replace('The Unauthorized Bash Brothers Experience', 'The Lonely Island').copy()
 li = mus[mus['artist'] == 'The Lonely Island'].groupby('track').sum().reset_index().sort_values('ms_played')[['track', 'ms_played']]
