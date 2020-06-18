@@ -48,141 +48,127 @@ def time_label(x):
 # - Stacked by audio_type
 # todo Change colors
 
-def monthly_hist(df, show=False):
-    '''
-    Shows podcasts/music grouped by month and year
-    '''
-    df_ = df.groupby(by=['month', 'audio_kind']).sum().reset_index().copy()
+# Shows podcasts/music grouped by month and year
+df_ = df.groupby(by=['month', 'audio_kind']).sum().reset_index().copy()
 
-    df_ = pd.merge(df_[df_['audio_kind'] == 'Podcast'], df_[df_['audio_kind'] == 'Music'], on='month', how='outer')
-    df_ = df_[['month', 'audio_kind_x', 'ms_played_x', 'audio_kind_y', 'ms_played_y']].copy()
-    df_['total'] = df_['ms_played_x'] + df_['ms_played_y']
-    df_['month_order'] = df_['month'].apply(lambda x: datetime.datetime.strptime(x, "%b '%y"))
-    df_['month'] = df_['month_order'].dt.strftime("%B '%y")
-    df_['days'] = df_['total']/86400000
-    df_['ms_in_month'] = pd.to_datetime(df_['month_order'].dt.date + relativedelta(months=1) - datetime.timedelta(days=1)).dt.day * 86400000
-    df_['x_pct_of_month'] = round(round(df_['ms_played_x']/df_['ms_in_month'], 4) * 100, 2)
-    df_['y_pct_of_month'] = round(round(df_['ms_played_y']/df_['ms_in_month'], 4) * 100, 2)
+df_ = pd.merge(df_[df_['audio_kind'] == 'Podcast'], df_[df_['audio_kind'] == 'Music'], on='month', how='outer')
+df_ = df_[['month', 'audio_kind_x', 'ms_played_x', 'audio_kind_y', 'ms_played_y']].copy()
+df_['total'] = df_['ms_played_x'] + df_['ms_played_y']
+df_['month_order'] = df_['month'].apply(lambda x: datetime.datetime.strptime(x, "%b '%y"))
+df_['month'] = df_['month_order'].dt.strftime("%B '%y")
+df_['days'] = df_['total']/86400000
+df_['ms_in_month'] = pd.to_datetime(df_['month_order'].dt.date + relativedelta(months=1) - datetime.timedelta(days=1)).dt.day * 86400000
+df_['x_pct_of_month'] = round(round(df_['ms_played_x']/df_['ms_in_month'], 4) * 100, 2)
+df_['y_pct_of_month'] = round(round(df_['ms_played_y']/df_['ms_in_month'], 4) * 100, 2)
 
-    df_.sort_values('month_order', inplace=True)
-    df_ = df_.fillna(0).copy()
+df_.sort_values('month_order', inplace=True)
+df_ = df_.fillna(0).copy()
 
-    df_['ms_played_x_format'] = df_['ms_played_x'].apply(time_label)
-    df_['ms_played_y_format'] = df_['ms_played_y'].apply(time_label)
+df_['ms_played_x_format'] = df_['ms_played_x'].apply(time_label)
+df_['ms_played_y_format'] = df_['ms_played_y'].apply(time_label)
 
-    fig = go.Figure(data=[go.Bar(
-                                x=df_['month_order'],
-                                y=df_['ms_played_x'],
-                                name='Podcasts',
-                                hovertemplate=df_['month'] +'</b>'+
-                                '<br>' + df_['ms_played_x_format'] + 
-                                '<br>' + df_['x_pct_of_month'].astype(str) + '% of the month'
-                                ),
-                            go.Bar(
-                                x=df_['month_order'],
-                                y=df_['ms_played_y'],
-                                name='Music',
-                                hovertemplate=df_['month'] +'</b>'+
-                                '<br>' + df_['ms_played_y_format'] + 
-                                '<br>' + df_['y_pct_of_month'].astype(str) + '% of the month'
-                                )]
-                    )
+fig = go.Figure(data=[go.Bar(
+                            x=df_['month_order'],
+                            y=df_['ms_played_x'],
+                            name='Podcasts',
+                            hovertemplate=df_['month'] +'</b>'+
+                            '<br>' + df_['ms_played_x_format'] + 
+                            '<br>' + df_['x_pct_of_month'].astype(str) + '% of the month'
+                            ),
+                        go.Bar(
+                            x=df_['month_order'],
+                            y=df_['ms_played_y'],
+                            name='Music',
+                            hovertemplate=df_['month'] +'</b>'+
+                            '<br>' + df_['ms_played_y_format'] + 
+                            '<br>' + df_['y_pct_of_month'].astype(str) + '% of the month'
+                            )]
+                )
 
-    fig.update_layout(
-        plot_bgcolor='#cccccc',
-        barmode='stack',
-        title=dict(
-            text='Time listened to Spotify by month',
-            font=dict(
-                size=24,
-                color='#000000'
-            ),
-            x=.5
+fig.update_layout(
+    plot_bgcolor='#cccccc',
+    barmode='stack',
+    title=dict(
+        text='Time listened to Spotify by month',
+        font=dict(
+            size=24,
+            color='#000000'
         ),
-        xaxis=dict(
-            title='Month',
-            range=[df_['month_order'].min() - datetime.timedelta(days=32), df_['month_order'].max() + datetime.timedelta(days=32)]
-        ),
-        yaxis=dict(
-            title='Time',
-            range=[0, math.ceil(df_['days'].max()) * 86400000],
-            tickvals=[i for i in range(0, math.ceil(df_['days'].max() * 86400000), 86400000)],
-            ticktext=[day_label(i) for i in range(0, math.ceil(df_['days'].max()))]
-        ),
-        width=900,
-        height=600
-    )
-    
-    if show:
-        fig.show()
+        x=.5
+    ),
+    xaxis=dict(
+        title='Month',
+        range=[df_['month_order'].min() - datetime.timedelta(days=32), df_['month_order'].max() + datetime.timedelta(days=32)]
+    ),
+    yaxis=dict(
+        title='Time',
+        range=[0, math.ceil(df_['days'].max()) * 86400000],
+        tickvals=[i for i in range(0, math.ceil(df_['days'].max() * 86400000), 86400000)],
+        ticktext=[day_label(i) for i in range(0, math.ceil(df_['days'].max()))]
+    ),
+    width=900,
+    height=600
+)
 
-    return fig
+fig.show()
 
-monthly_hist(df)
 
 #%% 
 # - Podcast breakdown
 # - Top 5 podcasts
-def pod_list(df, show=False):
-    '''
-    Shows list of podcasts as table
-    '''
-    pod = df[df['audio_kind'] == 'Podcast'].copy()
-    top_pod = pod.groupby(['show']).sum().reset_index().sort_values('ms_played', ascending=False).reset_index(drop=True).copy()
-    # - Podcasts must have 10 or more total minutes of listening to be counted
-    top_pod = top_pod[top_pod['ms_played'] >= 600000].copy()
-    top_pod['tot_format'] = top_pod['ms_played'].apply(time_label)
-    top_pod['rank'] = top_pod.index + 1
-    top_pod = top_pod[['show', 'ms_played', 'tot_format', 'rank']].copy()
+# - Shows list of podcasts as table
+pod = df[df['audio_kind'] == 'Podcast'].copy()
+top_pod = pod.groupby(['show']).sum().reset_index().sort_values('ms_played', ascending=False).reset_index(drop=True).copy()
+# - Podcasts must have 10 or more total minutes of listening to be counted
+top_pod = top_pod[top_pod['ms_played'] >= 600000].copy()
+top_pod['tot_format'] = top_pod['ms_played'].apply(time_label)
+top_pod['rank'] = top_pod.index + 1
+top_pod = top_pod[['show', 'ms_played', 'tot_format', 'rank']].copy()
 
-    pod_ep_count = pod.groupby(['show','episode_name']).count().reset_index().sort_values('username', ascending=False)[['show', 'username']].groupby('show').sum().reset_index().sort_values('username', ascending=False).copy()
-    pod_ep_count.columns = ['show', 'ep_count']
+pod_ep_count = pod.groupby(['show','episode_name']).count().reset_index().sort_values('username', ascending=False)[['show', 'username']].groupby('show').sum().reset_index().sort_values('username', ascending=False).copy()
+pod_ep_count.columns = ['show', 'ep_count']
 
-    merged = pd.merge(top_pod, pod_ep_count, on='show').copy()
+merged = pd.merge(top_pod, pod_ep_count, on='show').copy()
 
-    med_ep = pod.groupby(['show', 'episode_name']).sum().reset_index()[['show', 'ms_played']].groupby('show').median().reset_index().copy()
+med_ep = pod.groupby(['show', 'episode_name']).sum().reset_index()[['show', 'ms_played']].groupby('show').median().reset_index().copy()
 
-    merged = pd.merge(merged, med_ep, on='show', suffixes=('_tot', '_ep_med')).copy()
-    merged['med_ep_format'] = merged['ms_played_ep_med'].apply(time_label)
+merged = pd.merge(merged, med_ep, on='show', suffixes=('_tot', '_ep_med')).copy()
+merged['med_ep_format'] = merged['ms_played_ep_med'].apply(time_label)
 
-    alt_greys = ['#cccccc', '#e4e4e4'] * len(df)
-    fig = go.Figure(data=[go.Table(
-        header=dict(values=['Rank', 'Podcast', 'Total time listened', '# episodes listened to', 'Median time per listen'],
-                    fill_color='#5C7DAA',
-                    font_color='white',
-                    align='left'),
-        cells=dict(values=[merged['rank'], merged['show'], merged['tot_format'], merged['ep_count'], merged['med_ep_format']],
-                    fill_color=[alt_greys[:len(top_pod)]]*3,
-                    font_color='black',
-                    align='left'))])
+alt_greys = ['#cccccc', '#e4e4e4'] * len(df)
+fig = go.Figure(data=[go.Table(
+    header=dict(values=['Rank', 'Podcast', 'Total time listened', '# episodes listened to', 'Median time per listen'],
+                fill_color='#5C7DAA',
+                font_color='white',
+                align='left'),
+    cells=dict(values=[merged['rank'], merged['show'], merged['tot_format'], merged['ep_count'], merged['med_ep_format']],
+                fill_color=[alt_greys[:len(top_pod)]]*3,
+                font_color='black',
+                align='left'))])
 
-    fig.update_layout(
-        title=dict(
-            text='My podcast listening history on Spotify',
-            font=dict(
-                size=22,
-                color='#000000'
-            ),
-            x=.5
+fig.update_layout(
+    title=dict(
+        text='My podcast listening history on Spotify',
+        font=dict(
+            size=22,
+            color='#000000'
         ),
-        width=700,
-        height=1000,
-        annotations = [dict(
-                            font=dict(
-                                size=16,
-                                color='black'
-                                ),
-                            x=.5, y=1.05,
-                            showarrow=False,
-                            text ='from {0} to {1}'.format(df['ts_tz'].min().strftime('%B %d, %Y'), df['ts_tz'].max().strftime('%B %d, %Y')))]
-    )
+        x=.5
+    ),
+    width=700,
+    height=1000,
+    annotations = [dict(
+                        font=dict(
+                            size=16,
+                            color='black'
+                            ),
+                        x=.5, y=1.05,
+                        showarrow=False,
+                        text ='from {0} to {1}'.format(df['ts_tz'].min().strftime('%B %d, %Y'), df['ts_tz'].max().strftime('%B %d, %Y')))]
+)
 
-    if show:
-        fig.show()
+fig.show()
 
-    return fig
-
-pod_list(df)
 
 #%%
 # - adds text to final html 
@@ -205,6 +191,8 @@ def sum_str(df):
     final_str += "That's {0}% music and {1}% podcasts.\n".format(round((mus['ms_played'].sum() / span_ms) * 100, 2), round((pod['ms_played'].sum() / span_ms) * 100, 2))
 
     return final_str
+
+print(sum_str(df))
 
 # %%
 # todo
@@ -261,12 +249,10 @@ t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
 # ? maybe make in to a table? is there a way to filter with long dropdown?
 
 #%%
-# todo
 # - When you first started listening to artist
 # - Limit artists by min playing time/freq
-# ? maybe make in to a table? is there a way to filter with long dropdown?
 # - Limit to 2 mins or more of playing
-# - filer on ms played and first listen
+# - filer by ms played and first listen
 f_art = mus.groupby(['artist']).min().reset_index()[['artist', 'ts_utc']]
 art_list = mus.groupby(['artist']).sum().reset_index()[['artist', 'ms_played']]
 art_list = art_list[art_list['ms_played'] >= 60000 * 2].copy()
@@ -444,28 +430,6 @@ li = li.sort_values('ms_played', ascending=False)[['track', 'time played']].rese
 trav = mus[mus['artist'] == 'Travis Scott'].groupby('track').sum().reset_index()[['track', 'ms_played']]
 trav['time played'] = trav['ms_played'].apply(time_label)
 trav = trav.sort_values('ms_played', ascending=False)[['track', 'time played']].reset_index(drop=True)
-#%%
-
-def insights(df):
-    '''
-    Will make one large html file with a dashboard of the users historical listening data
-    '''
-    # pod = df[df['audio_kind'] == 'Podcast'].copy()
-    # mus = df[df['audio_kind'] == 'Music'].copy()
-    # span_sec = (df['ts_tz'].max() - df['ts_tz'].min()).total_seconds()
-    # span_ms = span_sec * 1000
-
-    print(sum_str(df))
-
-    monthly_hist(df)
-
-    print('Music\n')
-    # * On days you listened to Spotify/music/playlists you listen to x on average
-
-    print('Podcasts')
-    pod_list(df)
-
-insights(df)
 
 # %%
 
