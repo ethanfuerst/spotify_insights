@@ -12,6 +12,7 @@ import plotly.io as pio
 from plotly.colors import n_colors
 import plotly.express as px
 import plotly.figure_factory as ff
+from plotly.subplots import make_subplots
 from tzlocal import get_localzone
 from humanfriendly import format_timespan
 from create_data import get_stream_data
@@ -264,6 +265,81 @@ t_songs['t_format'] = t_songs['ms_played'].apply(time_label)
 # - When you first started listening to artist
 # - Limit artists by min playing time/freq
 # ? maybe make in to a table? is there a way to filter with long dropdown?
+# - Limit to 2 mins or more of playing
+# - filer on ms played and first listen
+f_art = mus.groupby(['artist']).min().reset_index()[['artist', 'ts_utc']]
+art_list = mus.groupby(['artist']).sum().reset_index()[['artist', 'ms_played']]
+art_list = art_list[art_list['ms_played'] >= 60000 * 2].copy()
+f_art = pd.merge(art_list, f_art, on='artist', how='inner', suffixes=('_first', ''))
+f_art = pd.merge(f_art, mus, on=['ts_utc', 'artist'], how='inner', suffixes=('', '_fplay'))[['artist', 'ms_played', 'ts_utc', 'track', 'album', 'week', 'month']]
+f_art['date'] = f_art['ts_utc'].dt.strftime('%d %b %Y')
+f_art['tot played'] = f_art['ms_played'].apply(time_label)
+# - First 50 artists
+f_50 = f_art.sort_values('ts_utc', ascending=True).head(50).reset_index(drop=True)
+f_50['rank'] = f_50.index + 1
+f_50['track_format'] = 'Track: ' + f_50['track'] + '<br>Album: ' + f_50['album']
+# - Top 50 artists
+t_50 = f_art.sort_values('ms_played', ascending=False).head(50).reset_index(drop=True)
+t_50['rank'] = t_50.index + 1
+t_50['track_format'] = 'Track: ' + t_50['track'] + '<br>Album: ' + t_50['album']
+
+alt_greys = ['#cccccc', '#e4e4e4'] * 51
+
+fig = make_subplots(rows=2, cols=1, 
+                    specs=[[{"type": "table"}],
+                            [{"type": "table"}]],
+                    vertical_spacing=0.085)
+
+fig.append_trace(go.Table(
+    header=dict(values=['Rank of first listen', 'Artist','First Track','First listen',
+                        'Total time listened to artist'],
+                fill_color='#5C7DAA',
+                font_color='white',
+                align='left'),
+    cells=dict(values=[f_50['rank'], f_50['artist'], f_50['track_format'],f_50['date'],
+                        f_50['tot played']],
+                fill_color=[alt_greys[:len(f_50)]]*3,
+                font_color='black',
+                align='left'),
+    columnwidth=[125,250,550,150,300]
+                ), row=1, col=1)
+
+fig.append_trace(go.Table(
+    header=dict(values=['Rank by time listened', 'Artist','First Track','First listen',
+                        'Total time listened to artist'],
+                fill_color='#5C7DAA',
+                font_color='white',
+                align='left'),
+    cells=dict(values=[t_50['rank'], t_50['artist'], t_50['track_format'],t_50['date'],
+                        t_50['tot played']],
+                fill_color=[alt_greys[:len(t_50)]]*3,
+                font_color='black',
+                align='left'),
+    columnwidth=[125,250,550,150,300]
+                ), row=2, col=1)
+
+fig.update_layout(
+    title=dict(
+        text='When I discovered artists on Spotify',
+        font=dict(
+            size=22,
+            color='#000000'
+        ),
+        x=.5
+    ),
+    width=1000,
+    height=1000,
+    annotations = [dict(
+                        font=dict(
+                            size=16,
+                            color='black'
+                            ),
+                        x=.5, y=1.05,
+                        showarrow=False,
+                        text ='Sorted by first listen and total time listened')]
+)
+
+fig.show()
 
 #%%
 # todo
