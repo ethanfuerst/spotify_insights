@@ -92,7 +92,9 @@ if __name__ == '__main__':
         Albums
         Subscriptions
     '''
-    with open('MyData/YourLibrary.json') as data:
+    # - either July24 or Dec10
+    data_dump = 'July24'
+    with open('MyData/' + data_dump + '/YourLibrary.json') as data:
         library = json.loads(data.read())
         for i in library:
             if i == 'tracks':
@@ -105,7 +107,7 @@ if __name__ == '__main__':
                 pass
 
     # - List of files containing streaming history
-    streaming_hist = glob.glob('MyData/StreamingHistory*.json')
+    streaming_hist = glob.glob('MyData/' + data_dump + '/StreamingHistory*.json')
 
     # - Make a df called streams with all the streaming history
     streams = pd.DataFrame()
@@ -187,7 +189,7 @@ if __name__ == '__main__':
     '''
     Playlists
     '''
-    # playlist_list = glob.glob('MyData/Playlist*.json')
+    # playlist_list = glob.glob('MyData/' + data_dump + '/Playlist*.json')
 
     # playlists = pd.DataFrame()
     # for i in playlist_list:
